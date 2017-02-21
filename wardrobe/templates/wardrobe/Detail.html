@@ -1,0 +1,209 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<script src="/static/bootstrap-3.3.5-dist/js/jquery-2.1.3.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/bootstrap-3.3.5-dist/js/bootstrap.js" type="text/javascript"></script>
+	<link  href="/static/bootstrap-3.3.5-dist/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+	<link  href="/static/bootstrap-3.3.5-dist/css/bootstrap-theme.css" rel="stylesheet" type="text/css"/>
+	<block name="title"><title>Index</title></block>
+	<style type="text/css">
+		a{color:black}
+		li>a{color:white}
+	</style>
+    <title>Detail</title>
+</head>
+<body style="font-family: Microsoft YaHei">
+	<div class="container">
+	<nav id="bs-navbar" class="collapse navbar-collapse navbar-fixed-top" style="background-color:#337ab7;color:white">
+		<ul class="nav navbar-nav navbar-left">
+			<li><a href="{% url 'Wardrobe:main_menu_edit_show' %}">菜单管理</a></li>
+		</ul>
+        <ul class="nav navbar-nav navbar-right" style="margin-right:80px">
+            <li><a href = "{% url 'Wardrobe:index'%}">衣橱</a></li>
+        </ul>
+    </nav>
+	<!--左侧菜单开始-->
+	<div class="col-md-3" style="margin-top:70px;">
+    <div class="panel-group" id="accordion1">
+		{% if main_menu_list %}
+		{% for item in main_menu_list %}
+        <div class="panel panel-default">
+          <ul class="nav nav-pills nav-stacked" role="tablist">
+            <li class="active"><a class="accordion-toggle" href="#collapse{{ item.id }}" data-toggle="collapse" data-parent="#accordion1">{{ item.Name }}</a></li>
+          </ul>
+          <div class="collapse" id="collapse{{ item.id }}">
+            <div class="panel-body" >
+            <ul class="nav nav-pills nav-stacked" role="tablist" style>
+				{% if item.menu_list %}
+					{% for it in item.menu_list%}
+						<li class="panel panel-default" style="margin-top:10px">
+							<a href="{% url 'Wardrobe:show_detail' id=it.id %}" style="color:black">{{ it.Detail }}</a>
+                            <a href="#editModal" type="button" data-toggle="modal" data-target="#editModal{{it.id}}"  aria-hidden="true" style="color:black">编辑&nbsp;&nbsp;<span class="glyphicon glyphicon-pencil"></span></a>
+							<a onclick = "return confirm('此类型所有衣服将被删除，是否确认删除衣服类型？')" href="{% url 'Wardrobe:sub_item' id=it.id %}" style="color:black">删除&nbsp;&nbsp;<span class="glyphicon glyphicon-minus"></span></a>
+						</li>
+						<!--模态框实体-->
+						<div class="modal fade" id="editModal{{it.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">修改衣橱名称</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                          <form action="{% url 'Wardrobe:edit_item' %}" method="post">
+                                              {%csrf_token%}
+                                              <div class="input-group">
+                                                  <div class="input-group-addon">修改名称</div>
+                                                  <input type="text" name="menu_name" class="form-control">
+                                                  <input type="hidden" name="menu_id" value="{{ it.id }}">
+                                              </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                            <input type="submit" class="btn btn-primary" >
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                          </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+						<!--实体结束-->
+					{% endfor %}
+				{% endif %}
+				<!--模态框触发器-->
+				<li class="panel panel-default" style="margin-top:10px"><a href="#dadModal"  type="button" style="color:black" data-toggle="modal" data-target="#additemModel{{ item.id }}" >添加衣服类型<span class="glyphicon glyphicon-plus" style="float:right"></span></a></li>
+            	<!--模态框实体-->
+				<div class="modal fade" id="additemModel{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				  <div class="modal-dialog">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+						<h4 class="modal-title" id="myModalLabel">衣服类型名称</h4>
+					  </div>
+					  <div class="modal-body">
+						  <form action="{% url 'Wardrobe:add_item' %}" method="post">
+							  {%csrf_token%}
+							  <input type="text" name="name" class="form-control">
+							  <input type="hidden" name="main_menu" value="{{ item.id }}">
+					  </div>
+					  <div class="modal-footer">
+						  	<input type="submit" class="btn btn-primary" >
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						  </form>
+					  </div>
+					</div>
+				  </div>
+				</div>
+				<!--实体结束-->
+			</ul>
+            </div>
+          </div>
+        </div>
+		{% endfor %}
+		{% endif %}
+
+	</div>
+	</div>
+	<!--左侧菜单结束-->
+	<!--右侧剧目开始-->
+	<div class="col-md-9" style="margin-top:70px">
+
+		<ol class="breadcrumb">
+			{% if route_list%}
+				{% for item in route_list %}
+					<li class="active">{{ item.name }}</li>
+				{% endfor %}
+			{% endif %}
+		</ol>
+
+    {% if clothes_list %}
+        {% for item in clothes_list %}
+    <div class="col-xs-6 col-md-3">
+        <a href="#" class="thumbnail">
+          <img src = "{{ item.path }}">
+        </a>
+        <p>{{ item.note }}
+			<span style="float:right">
+				<a href="editModal" class="glyphicon glyphicon-pencil" type="button" data-toggle="modal" data-target="#editclotheModal{{ item.id }}"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+				<a onclick = "return confirm('是否确认删除此衣服？')" href="{% url 'Wardrobe:sub_clothe' id=item.id menuid=menu_id %}" class="glyphicon glyphicon-minus" style="float:right"></a>
+			</span>
+		</p>
+		<!--Modal Start-->
+		<div class="modal fade" id="editclotheModal{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">修改描述</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                          <form action="{% url 'Wardrobe:edit_clothe' %}" method="post">
+                                              {%csrf_token%}
+                                              <div class="input-group">
+                                                  <div class="input-group-addon">修改名称</div>
+                                                  <input type="text" name="clothe_name" class="form-control">
+                                                  <input type="hidden" name="clothe_id" value="{{ item.id }}">
+												  <input type="hidden" name="menu_id" value = "{{ menu_id }}">
+                                              </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                            <input type="submit" class="btn btn-primary" >
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                          </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+		<!--Modal End-->
+    </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="col-xs-6 col-md-3">
+        <!--模态框触发器-->
+        <a class="thumbnail" href="#upModal"  type="button" data-toggle="modal" data-target="#upModel">
+          <img src="/static/add.png" alt="100%x180">
+        </a>
+            	<!--模态框实体-->
+				<div class="modal fade" id="upModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				  <div class="modal-dialog">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+						<h4 class="modal-title" id="myModalLabe4">衣服类型名称</h4>
+					  </div>
+					  <div class="modal-body">
+						  <form class="form-signin" role="form" method="post" action="{% url 'Wardrobe:do_up' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                                <div style="text-align:center">
+                                <h3>用户登陆</h3>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon1">上传文件</span>
+                                    <input type="file" name="clothes" class="form-control" />
+                                    <input type="hidden" name="menu_id" value="{{ menu_id }}">
+                                </div>
+								<div class="row"style="margin-top:20px"></div>
+							  	<div class="input-group" >
+									<span class="input-group-addon" id="basic-addon2">详细描述</span>
+									<input type="text" name="note" class="form-control" />
+								</div>
+					  </div>
+					  <div class="modal-footer">
+						  	<input type="submit" class="btn btn-primary" value="添加衣服">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						  </form>
+					  </div>
+					</div>
+				  </div>
+				</div>
+    </div>
+
+    </div>
+	<!--右侧剧目结束-->
+	<div class="container">
+
+	</div></div>
+</body>
+</html>
+<html>
